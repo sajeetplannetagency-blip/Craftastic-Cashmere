@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Craftastic Cashmere</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState } = React;
+
+
+const PRODUCTS = [
+  {
+    id: "p1",
+    name: "Sozni Embroidered Pashmina",
+    desc: "Hand-embroidered indigo pashmina with traditional paisley border",
+    price: 8500,
+    pattern: "linear-gradient(135deg, #1c2f52 0%, #2a4470 45%, #1c2f52 100%)",
+    accent: "#c9a24b",
+  },
+  {
+    id: "p2",
+    name: "Kani Weave Shawl",
+    desc: "Multi-colour Kani weave, wool blend, hand-finished fringe",
+    price: 6200,
+    pattern: "linear-gradient(135deg, #7a2e2e 0%, #a3453f 45%, #7a2e2e 100%)",
+    accent: "#e8c77a",
+  },
+  {
+    id: "p3",
+    name: "Classic Nehru Jacket",
+    desc: "Cashmere-wool Nehru jacket, hand-finished buttons",
+    price: 4500,
+    pattern: "linear-gradient(135deg, #2f2f2f 0%, #4a4a4a 45%, #2f2f2f 100%)",
+    accent: "#c9a24b",
+  },
+  {
+    id: "p4",
+    name: "Ari Embroidered Firan",
+    desc: "Traditional firan with dense chain-stitch embroidery",
+    price: 12000,
+    pattern: "linear-gradient(135deg, #1c2f52 0%, #7a2e2e 100%)",
+    accent: "#e8c77a",
+  },
+  {
+    id: "p5",
+    name: "Plain Pashmina Stole",
+    desc: "100% pure pashmina, undyed natural tone",
+    price: 5200,
+    pattern: "linear-gradient(135deg, #d8cbb0 0%, #c9b990 45%, #d8cbb0 100%)",
+    accent: "#7a2e2e",
+  },
+  {
+    id: "p6",
+    name: "Papier-Mâché Jewel Box",
+    desc: "Hand-painted papier-mâché box with gold leaf detail",
+    price: 1800,
+    pattern: "linear-gradient(135deg, #7a2e2e 0%, #1c2f52 100%)",
+    accent: "#c9a24b",
+  },
+];
+
+function formatINR(n) {
+  return "₹" + n.toLocaleString("en-IN");
+}
+
+function App() {
+  const [cart, setCart] = useState({});
+  const [cartOpen, setCartOpen] = useState(false);
+  const [toast, setToast] = useState("");
+  const [checkoutStep, setCheckoutStep] = useState(0);
+
+  function addToCart(product) {
+    setCart((prev) => ({
+      ...prev,
+      [product.id]: (prev[product.id] || 0) + 1,
+    }));
+    setToast(`${product.name} added to cart`);
+    setTimeout(() => setToast(""), 1800);
+  }
+
+  function changeQty(id, delta) {
+    setCart((prev) => {
+      const next = { ...prev };
+      next[id] = (next[id] || 0) + delta;
+      if (next[id] <= 0) delete next[id];
+      return next;
+    });
+  }
+
+  const cartItems = Object.entries(cart).map(([id, qty]) => ({
+    ...PRODUCTS.find((p) => p.id === id),
+    qty,
+  }));
+  const cartCount = cartItems.reduce((s, i) => s + i.qty, 0);
+  const cartTotal = cartItems.reduce((s, i) => s + i.qty * i.price, 0);
+
+  return (
+    <div style={styles.page}>
+      {/* Header */}
+      <header style={styles.header}>
+        <div style={styles.headerInner}>
+          <div style={styles.brand}>
+            <div style={styles.brandMark}>CC</div>
+            <div>
+              <div style={styles.brandName}>Craftastic Cashmere</div>
+              <div style={styles.brandSub}>Srinagar, Kashmir · Est. Handcrafted</div>
+            </div>
+          </div>
+          <button
+            style={styles.cartButton}
+            onClick={() => setCartOpen(true)}
+            aria-label="Open cart"
+          >
+            <CartIcon />
+            <span>Cart</span>
+            {cartCount > 0 && <span style={styles.cartBadge}>{cartCount}</span>}
+          </button>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section style={styles.hero}>
+        <div style={styles.heroPattern} />
+        <div style={styles.heroContent}>
+          <div style={styles.heroEyebrow}>Sample Demo — Not Live</div>
+          <h1 style={styles.heroTitle}>
+            Woven in the valley,
+            <br />
+            <span style={{ color: "#c9a24b" }}>ordered from anywhere.</span>
+          </h1>
+          <p style={styles.heroText}>
+            Authentic Kashmiri pashmina, shawls &amp; handicrafts — this is a
+            working preview of how your customers could browse, add to cart,
+            and pay online.
+          </p>
+        </div>
+      </section>
+
+      {/* Products */}
+      <section style={styles.productsSection}>
+        <div style={styles.sectionHead}>
+          <h2 style={styles.sectionTitle}>The Collection</h2>
+          <div style={styles.sectionLine} />
+        </div>
+        <div style={styles.grid}>
+          {PRODUCTS.map((p) => (
+            <div style={styles.card} key={p.id}>
+              <div style={{ ...styles.cardImage, background: p.pattern }}>
+                <div style={{ ...styles.cardImageAccent, background: p.accent }} />
+              </div>
+              <div style={styles.cardBody}>
+                <div style={styles.cardName}>{p.name}</div>
+                <div style={styles.cardDesc}>{p.desc}</div>
+                <div style={styles.cardFooter}>
+                  <div style={styles.cardPrice}>{formatINR(p.price)}</div>
+                  <button
+                    style={styles.addButton}
+                    onClick={() => addToCart(p)}
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer style={styles.footer}>
+        <div>Craftastic Cashmere — Sample website for demo purposes only</div>
+      </footer>
+
+      {/* Toast */}
+      {toast && <div style={styles.toast}>{toast}</div>}
+
+      {/* Cart Drawer */}
+      {cartOpen && (
+        <div style={styles.overlay} onClick={() => setCartOpen(false)}>
+          <div style={styles.drawer} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.drawerHeader}>
+              <div style={styles.drawerTitle}>
+                {checkoutStep === 0 ? "Your Cart" : checkoutStep === 1 ? "Checkout" : "Order Placed"}
+              </div>
+              <button
+                style={styles.closeButton}
+                onClick={() => {
+                  setCartOpen(false);
+                  setCheckoutStep(0);
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {checkoutStep === 0 && (
+              <>
+                <div style={styles.drawerBody}>
+                  {cartItems.length === 0 && (
+                    <div style={styles.emptyCart}>Your cart is empty.</div>
+                  )}
+                  {cartItems.map((item) => (
+                    <div style={styles.cartRow} key={item.id}>
+                      <div
+                        style={{
+                          ...styles.cartThumb,
+                          background: item.pattern,
+                        }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={styles.cartItemName}>{item.name}</div>
+                        <div style={styles.cartItemPrice}>
+                          {formatINR(item.price)}
+                        </div>
+                      </div>
+                      <div style={styles.qtyControl}>
+                        <button
+                          style={styles.qtyBtn}
+                          onClick={() => changeQty(item.id, -1)}
+                        >
+                          −
+                        </button>
+                        <span style={styles.qtyNum}>{item.qty}</span>
+                        <button
+                          style={styles.qtyBtn}
+                          onClick={() => changeQty(item.id, 1)}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {cartItems.length > 0 && (
+                  <div style={styles.drawerFooter}>
+                    <div style={styles.totalRow}>
+                      <span>Total</span>
+                      <span style={styles.totalAmount}>
+                        {formatINR(cartTotal)}
+                      </span>
+                    </div>
+                    <button
+                      style={styles.checkoutButton}
+                      onClick={() => setCheckoutStep(1)}
+                    >
+                      Proceed to Checkout
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {checkoutStep === 1 && (
+              <div style={styles.drawerBody}>
+                <div style={styles.fieldLabel}>Full Name</div>
+                <input style={styles.input} placeholder="e.g. Aisha Khan" />
+                <div style={styles.fieldLabel}>Phone Number</div>
+                <input
+                  style={styles.input}
+                  placeholder="e.g. 98765 43210"
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
+                />
+                <div style={styles.fieldLabel}>Delivery Address</div>
+                <input style={styles.input} placeholder="House no, Street, City" />
+                <div style={styles.fieldLabel}>Pin Code</div>
+                <input
+                  style={styles.input}
+                  placeholder="e.g. 190001"
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={6}
+                />
+
+                <div style={styles.payLabel}>Choose Payment Method</div>
+                <div style={styles.payOptions}>
+                  <div style={styles.payChip}>UPI</div>
+                  <div style={styles.payChip}>Card</div>
+                  <div style={styles.payChip}>Net Banking</div>
+                </div>
+                <div style={styles.payNote}>
+                  (Sample only — real gateway connects here once Razorpay is linked)
+                </div>
+
+                <div style={styles.totalRow}>
+                  <span>Total</span>
+                  <span style={styles.totalAmount}>{formatINR(cartTotal)}</span>
+                </div>
+                <button
+                  style={styles.checkoutButton}
+                  onClick={() => setCheckoutStep(2)}
+                >
+                  Pay {formatINR(cartTotal)}
+                </button>
+              </div>
+            )}
+
+            {checkoutStep === 2 && (
+              <div style={styles.drawerBody}>
+                <div style={styles.successWrap}>
+                  <div style={styles.successCheck}>✓</div>
+                  <div style={styles.successTitle}>Order Confirmed</div>
+                  <div style={styles.successText}>
+                    Notification sent to shop owner. Pickup will be scheduled
+                    with Shiprocket automatically.
+                  </div>
+                  <button
+                    style={styles.checkoutButton}
+                    onClick={() => {
+                      setCart({});
+                      setCheckoutStep(0);
+                      setCartOpen(false);
+                    }}
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CartIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M3 3h2l.4 2M7 13h10l3-7H5.4M7 13L5.4 5M7 13l-1.5 5h11"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="9" cy="20" r="1.4" fill="currentColor" />
+      <circle cx="17" cy="20" r="1.4" fill="currentColor" />
+    </svg>
+  );
+}
+
+const NAVY = "#1c2f52";
+const MAROON = "#7a2e2e";
+const GOLD = "#c9a24b";
+const CREAM = "#f4ede1";
+
+const styles = {
+  page: {
+    fontFamily: "'Georgia', 'Iowan Old Style', serif",
+    background: CREAM,
+    minHeight: "100vh",
+    color: "#241f1a",
+  },
+  header: {
+    position: "sticky",
+    top: 0,
+    zIndex: 20,
+    background: NAVY,
+    borderBottom: `3px solid ${GOLD}`,
+  },
+  headerInner: {
+    maxWidth: 1100,
+    margin: "0 auto",
+    padding: "14px 20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  brand: { display: "flex", alignItems: "center", gap: 12 },
+  brandMark: {
+    width: 40,
+    height: 40,
+    borderRadius: "50%",
+    background: GOLD,
+    color: NAVY,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: 700,
+    fontFamily: "Georgia, serif",
+    fontSize: 15,
+  },
+  brandName: {
+    color: CREAM,
+    fontSize: 19,
+    fontWeight: 700,
+    letterSpacing: 0.3,
+  },
+  brandSub: {
+    color: "#c9b990",
+    fontSize: 11,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+  },
+  cartButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    background: "transparent",
+    border: `1.5px solid ${GOLD}`,
+    color: CREAM,
+    padding: "9px 16px",
+    borderRadius: 3,
+    cursor: "pointer",
+    fontSize: 14,
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+    position: "relative",
+  },
+  cartBadge: {
+    background: MAROON,
+    color: "#fff",
+    borderRadius: "50%",
+    width: 20,
+    height: 20,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 11,
+    position: "absolute",
+    top: -8,
+    right: -8,
+  },
+  hero: {
+    position: "relative",
+    background: `linear-gradient(180deg, ${NAVY} 0%, #16233d 100%)`,
+    padding: "72px 20px 88px",
+    overflow: "hidden",
+  },
+  heroPattern: {
+    position: "absolute",
+    inset: 0,
+    opacity: 0.12,
+    backgroundImage:
+      "radial-gradient(circle at 20% 30%, #c9a24b 0, transparent 40%), radial-gradient(circle at 80% 70%, #7a2e2e 0, transparent 45%)",
+  },
+  heroContent: {
+    position: "relative",
+    maxWidth: 680,
+    margin: "0 auto",
+    textAlign: "center",
+  },
+  heroEyebrow: {
+    display: "inline-block",
+    color: GOLD,
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+    fontSize: 11,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    border: `1px solid ${GOLD}`,
+    borderRadius: 20,
+    padding: "5px 14px",
+    marginBottom: 22,
+  },
+  heroTitle: {
+    color: CREAM,
+    fontSize: "clamp(28px, 5vw, 44px)",
+    lineHeight: 1.25,
+    margin: "0 0 18px",
+    fontWeight: 400,
+  },
+  heroText: {
+    color: "#d8cbb0",
+    fontSize: 15.5,
+    lineHeight: 1.7,
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+    maxWidth: 480,
+    margin: "0 auto",
+  },
+  productsSection: {
+    maxWidth: 1100,
+    margin: "0 auto",
+    padding: "56px 20px 80px",
+  },
+  sectionHead: { textAlign: "center", marginBottom: 40 },
+  sectionTitle: {
+    fontSize: 28,
+    color: NAVY,
+    margin: "0 0 12px",
+    fontWeight: 400,
+  },
+  sectionLine: {
+    width: 60,
+    height: 3,
+    background: GOLD,
+    margin: "0 auto",
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+    gap: 28,
+  },
+  card: {
+    background: "#fff",
+    borderRadius: 4,
+    overflow: "hidden",
+    boxShadow: "0 2px 14px rgba(28,47,82,0.1)",
+    display: "flex",
+    flexDirection: "column",
+  },
+  cardImage: {
+    height: 170,
+    position: "relative",
+  },
+  cardImageAccent: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+  },
+  cardBody: {
+    padding: "18px 18px 20px",
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    flex: 1,
+  },
+  cardName: {
+    fontSize: 16.5,
+    fontWeight: 700,
+    color: "#241f1a",
+  },
+  cardDesc: {
+    fontSize: 13,
+    color: "#6b6055",
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+    lineHeight: 1.5,
+    flex: 1,
+  },
+  cardFooter: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 8,
+  },
+  cardPrice: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: MAROON,
+  },
+  addButton: {
+    background: NAVY,
+    color: CREAM,
+    border: "none",
+    padding: "9px 14px",
+    borderRadius: 3,
+    fontSize: 12.5,
+    letterSpacing: 0.4,
+    cursor: "pointer",
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+  },
+  footer: {
+    background: NAVY,
+    color: "#c9b990",
+    textAlign: "center",
+    padding: "22px 20px",
+    fontSize: 12,
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+  },
+  toast: {
+    position: "fixed",
+    bottom: 24,
+    left: "50%",
+    transform: "translateX(-50%)",
+    background: NAVY,
+    color: CREAM,
+    padding: "12px 22px",
+    borderRadius: 4,
+    fontSize: 13.5,
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
+    zIndex: 50,
+    border: `1px solid ${GOLD}`,
+  },
+  overlay: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(20,16,12,0.5)",
+    zIndex: 40,
+    display: "flex",
+    justifyContent: "flex-end",
+  },
+  drawer: {
+    width: "min(400px, 100%)",
+    background: CREAM,
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    boxShadow: "-6px 0 24px rgba(0,0,0,0.2)",
+  },
+  drawerHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "18px 20px",
+    background: NAVY,
+    color: CREAM,
+  },
+  drawerTitle: { fontSize: 17, fontWeight: 700 },
+  closeButton: {
+    background: "transparent",
+    border: "none",
+    color: CREAM,
+    fontSize: 18,
+    cursor: "pointer",
+  },
+  drawerBody: {
+    padding: 20,
+    overflowY: "auto",
+    flex: 1,
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+  },
+  emptyCart: {
+    textAlign: "center",
+    color: "#6b6055",
+    padding: "40px 0",
+    fontSize: 14,
+  },
+  cartRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    padding: "12px 0",
+    borderBottom: "1px solid #e3d8c4",
+  },
+  cartThumb: {
+    width: 52,
+    height: 52,
+    borderRadius: 3,
+    flexShrink: 0,
+  },
+  cartItemName: { fontSize: 13.5, fontWeight: 700, marginBottom: 3 },
+  cartItemPrice: { fontSize: 12.5, color: MAROON },
+  qtyControl: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    border: "1px solid #d8cbb0",
+    borderRadius: 3,
+    padding: "3px 8px",
+  },
+  qtyBtn: {
+    background: "none",
+    border: "none",
+    fontSize: 15,
+    cursor: "pointer",
+    color: NAVY,
+    width: 18,
+  },
+  qtyNum: { fontSize: 13, minWidth: 14, textAlign: "center" },
+  drawerFooter: {
+    padding: 20,
+    borderTop: "1px solid #e3d8c4",
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+  },
+  totalRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: 15,
+    marginBottom: 14,
+  },
+  totalAmount: { fontWeight: 700, color: MAROON },
+  checkoutButton: {
+    width: "100%",
+    background: MAROON,
+    color: "#fff",
+    border: "none",
+    padding: "13px 0",
+    borderRadius: 3,
+    fontSize: 14.5,
+    letterSpacing: 0.4,
+    cursor: "pointer",
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+  },
+  fieldLabel: {
+    fontSize: 12,
+    color: "#6b6055",
+    marginBottom: 5,
+    marginTop: 14,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  input: {
+    width: "100%",
+    padding: "10px 12px",
+    border: "1px solid #d8cbb0",
+    borderRadius: 3,
+    fontSize: 14,
+    boxSizing: "border-box",
+    fontFamily: "'Helvetica Neue', Arial, sans-serif",
+    background: "#fff",
+  },
+  payLabel: {
+    fontSize: 12,
+    color: "#6b6055",
+    marginTop: 20,
+    marginBottom: 8,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  payOptions: { display: "flex", gap: 8 },
+  payChip: {
+    border: `1px solid ${NAVY}`,
+    color: NAVY,
+    padding: "8px 14px",
+    borderRadius: 20,
+    fontSize: 12.5,
+  },
+  payNote: {
+    fontSize: 11.5,
+    color: "#a89a80",
+    marginTop: 8,
+    fontStyle: "italic",
+  },
+  successWrap: { textAlign: "center", padding: "30px 10px" },
+  successCheck: {
+    width: 56,
+    height: 56,
+    borderRadius: "50%",
+    background: NAVY,
+    color: GOLD,
+    fontSize: 26,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 18px",
+  },
+  successTitle: { fontSize: 18, fontWeight: 700, marginBottom: 8, color: NAVY },
+  successText: {
+    fontSize: 13.5,
+    color: "#6b6055",
+    lineHeight: 1.6,
+    marginBottom: 22,
+  },
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
